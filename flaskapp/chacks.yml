@@ -5,7 +5,7 @@ channels:
     - conda-forge
     - pytorch
 dependencies:
-    - python==3.6
+    - python==3.6.7
     - numpy
     - matplotlib
     - jupyter
