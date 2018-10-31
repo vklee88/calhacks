@@ -1,0 +1,4 @@
+Flask==1.0.2
+keras
+numpy
+tensorflow  # this may need to change
