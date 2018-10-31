@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import websocket from 'react-websocket';
+import MediaStreamRecorder from 'msr';
+import io from 'socket.io-client';
 import './App.css';
 
 class App extends Component {
@@ -14,6 +15,7 @@ class App extends Component {
       err: null
     };
     this.mediaRecorder = null;
+    this.socket = null;
     this.storedStream = null;
   }
 
@@ -22,10 +24,15 @@ class App extends Component {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({video: true})
         .then(stream => {
-          this.setState({err: null});
-          video.src = window.URL.createObjectURL(stream);
-          this.storedStream = stream;
-
+          this.socket = io('ws://localhost');
+          socket.on('connect', () => {
+            this.setState({err: null});
+            video.src = window.URL.createObjectURL(stream);
+            this.storedStream = stream;
+            this.mediaRecorder = new MediaStreamRecorder(stream);
+            this.mediaRecorder.mimeType = 'video/webm';
+            this.mediaRecorder.ondataavailable(this.uploadData);
+          });
         })
         .catch(err => {
           let message = err.message;
@@ -41,14 +48,19 @@ class App extends Component {
 
   stopRecording() {
     if (this.storedStream) {
+      if (this.socket) {
+        this.socket.close();
+        this.socket = null;
+      }
       for (let track of this.storedStream.getTracks()) {
         track.stop();
       }
+      this.storedStream = null;
     }
   }
 
-  uploadData() {
-    websocket
+  uploadData(blob) {
+    this.socket.emit('data', blob);
   }
 
   render() {
