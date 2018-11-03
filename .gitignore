@@ -23,3 +23,7 @@ yarn-error.log*
 # intelli-j
 *.iml
 .idea/
+
+# python env
+calhacks_env/
+__pycache__/
