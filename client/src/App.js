@@ -105,11 +105,18 @@ class App extends Component {
   takeASnap(vid){
     const canvas = document.createElement('canvas'); // create a canvas
     const ctx = canvas.getContext('2d'); // get its context
-    canvas.width = vid.videoWidth; // set its size to the one of the video
-    canvas.height = vid.videoHeight;
-    ctx.drawImage(vid, 0,0); // the video
+    canvas.width = vid.width; // set its size to the one of the video
+    canvas.height = vid.height;
+    ctx.drawImage(vid, 0,0, canvas.width, canvas.height); // the video
     return new Promise((res, rej)=>{
-      canvas.toBlob(res, 'image/jpeg'); // request a Blob from the canvas
+      canvas.toBlob((blob) => {
+        var reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = function() {
+          let base64data = reader.result;
+          res(base64data);
+        }
+      }, 'image/jpeg'); // request a Blob from the canvas
     });
   }
 
