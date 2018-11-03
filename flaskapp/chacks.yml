@@ -1,0 +1,30 @@
+name: chacks
+
+channels:
+    - https://conda.anaconda.org/menpo
+    - conda-forge
+    - pytorch
+dependencies:
+    - python==3.6.7
+    - numpy
+    - matplotlib
+    - jupyter
+    - opencv
+    - pillow
+    - scikit-learn
+    - scikit-image
+    - scipy
+    - h5py
+    - eventlet
+    - flask-socketio
+    - seaborn
+    - pandas
+    - imageio
+    - bokeh
+    - pytorch
+    - pip:
+        - google
+        - moviepy
+        - tensorflow-gpu
+        - keras
+        - torchvision
