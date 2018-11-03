@@ -1,2 +1,5 @@
-Flask==1.0.2
+flask==1.0.2
 flask_socketio==3.0.2
+tensorflow==1.10
+gunicorn==19.9.0
+numpy==1.14.5
