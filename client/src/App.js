@@ -118,7 +118,6 @@ class App extends Component {
     // console.log(this.state.socket);
     if (this.state.socket) {
       return new Promise((res, rej) => {
-        debugger;
         this.state.socket.emit('data', blob, (ack) => {
           if (ack) {
             res(ack);
