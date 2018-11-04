@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 import tensorflow as tf
 
 import base64
@@ -20,7 +20,7 @@ def load_graph(frozen_model):
     
     return graph
 
-# print(global_graph is load_graph('ssd_mobilenet/frozen_inference_graph.pb'))  # True
+print(global_graph is load_graph('ssd_mobilenet/frozen_inference_graph.pb'))  # True
 
 global_session = tf.Session(graph=global_graph)
 
@@ -52,27 +52,29 @@ def predict(img):
 
     return img, output
 
+# nopencv
 def draw_box_and_panic(img):
     img_array, prediction_dict = predict(img)
-    top_boxes = prediction_dict['boxes'][:, :3, :][0, :]
-    top_labels = [categories(int(code)) for idx, code in enumerate(list(prediction_dict['classes'][0])) if idx < 3]
     img_array = img_array.reshape(300, 300, 3)
+    img = Image.fromarray(img_array, mode='RGB')
+    top_boxes = prediction_dict['boxes'][:, :3, :][0, :]
+    # top_labels = [categories(int(code)) for idx, code in enumerate(list(prediction_dict['classes'][0])) if idx < 3]
 
     good_box = centermost_box(top_boxes)
-    draw_one_box(img_array, good_box, (255, 255, 0))
+    draw_one_box(img, good_box, (255, 255, 0))
     panic_or_not = panic(good_box)
 
     # for idx, (box, label) in enumerate(zip(list(top_boxes), top_labels)):
     #     color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][idx]
     #     draw_one_box(img_array, box, color, label)
     
-    return img_array, panic_or_not
+    return img, panic_or_not
 
 # nopencv
 def b64_to_img(b64_str):
     img = Image.open(BytesIO(base64.b64decode(b64_str)))
     img = img.resize((300, 300))
-    img = np.asarray(temp)
+    img = np.asarray(img)
     return img
 
 # nopencv
@@ -86,10 +88,13 @@ def img_to_b64(img):
     compressed_img = buffer.getvalue()
     return base64.b64encode(compressed_img)
     
+# nopencv
 def draw_one_box(img, box, color):
     box = 300 * box
     ymin, xmin, ymax, xmax = list(box)
-    cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
+
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([xmin, ymin, xmax, ymax], outline=color, width=5)
 
 def categories(idx):  # 80 classes
     try:
