@@ -1,5 +1,5 @@
 from subprocess import call
-call('sudo apt update && apt install -y libsm6 libxext6', shell=True)
+call('sudo apt-get update && sudo apt-get install -y libxrender-dev && sudo apt-get install -y libsm6 libxext6', shell=True)
 
 import cv2
 import numpy as np
