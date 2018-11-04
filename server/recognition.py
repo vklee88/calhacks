@@ -6,6 +6,8 @@ import tensorflow as tf
 import base64
 from io import BytesIO
 
+from panicker import panic, centermost_box
+
 global_graph = tf.Graph()
 
 def load_graph(frozen_model):
@@ -39,7 +41,7 @@ print('input_img:', input_img)
 
 def predict(img):
     # img = cv2.imread(img, 1)  # convert image to numpy array
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (300, 300))  # resize to 300 x 300
     img = np.expand_dims(img, axis=0)
     output = {}
@@ -50,22 +52,26 @@ def predict(img):
 
     return img, output
 
-def draw_box(img):
+def draw_box_and_panic(img):
     img_array, prediction_dict = predict(img)
     top_boxes = prediction_dict['boxes'][:, :3, :][0, :]
     top_labels = [categories(int(code)) for idx, code in enumerate(list(prediction_dict['classes'][0])) if idx < 3]
     img_array = img_array.reshape(300, 300, 3)
 
-    for idx, (box, label) in enumerate(zip(list(top_boxes), top_labels)):
-        color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][idx]
-        draw_one_box(img_array, box, color, label)
+    good_box = centermost_box(top_boxes)
+    draw_one_box(img_array, good_box, (255, 255, 0))
+    panic_or_not = panic(good_box)
+
+    # for idx, (box, label) in enumerate(zip(list(top_boxes), top_labels)):
+    #     color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][idx]
+    #     draw_one_box(img_array, box, color, label)
     
-    return img_array
+    return img_array, panic_or_not
 
 def b64_to_img(b64_str):
-    im = Image.open(BytesIO(base64.b64decode(b64_str)))
-    i = np.asarray(im)
-    return i
+    temp = Image.open(BytesIO(base64.b64decode(b64_str)))
+    img = np.asarray(temp)
+    return img
 
 # this is working
 def img_to_b64(img_arr):
@@ -73,7 +79,7 @@ def img_to_b64(img_arr):
     b64_str = base64.b64encode(compressed_img_arr)
     return b64_str
     
-def draw_one_box(img, box, color, label):
+def draw_one_box(img, box, color):
     box = 300 * box
     xmin, ymin, xmax, ymax = list(box)
     cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
