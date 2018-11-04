@@ -81,7 +81,7 @@ def img_to_b64(img_arr):
     
 def draw_one_box(img, box, color):
     box = 300 * box
-    xmin, ymin, xmax, ymax = list(box)
+    ymin, xmin, ymax, xmax = list(box)
     cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
     # print(label)
     # cv2.putText(img, label, (xmax, ymax), cv2.FONT_HERSHEY_SIMPLEX, 4, color, 2, cv2.LINE_AA)

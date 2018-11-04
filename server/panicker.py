@@ -29,6 +29,6 @@ def center(box):
     ----------
     box: an iterable with contents [xmin, ymin, xmax, ymax]
     """
-    xmin, ymin, xmax, ymax = list(box)
+    ymin, xmin, ymax, xmax = list(box)
 
     return (xmax + xmin) / 2, (ymax + ymin) / 2
