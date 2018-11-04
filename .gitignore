@@ -27,3 +27,6 @@ yarn-error.log*
 # python env
 calhacks_env/
 __pycache__/
+
+# vscode
+**/.vscode/
