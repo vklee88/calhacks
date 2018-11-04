@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-PANIC_THRESHOLD = 20_000
+PANIC_THRESHOLD = 42_000
 
 def panic(centermost):
     return distance_from_center(centermost) > PANIC_THRESHOLD
