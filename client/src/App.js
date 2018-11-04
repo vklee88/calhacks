@@ -109,9 +109,10 @@ class App extends Component {
         .then((blob) => {
           return this.uploadData(blob);
         }).then(() => {
+          c++;
           this.takeSnapshot(c, video);
         });
-    }, 50, c);
+    }, 20, c);
   }
 
   // https://stackoverflow.com/questions/46882550/how-to-save-a-jpg-image-video-captured-with-webcam-in-the-local-hard-drive-with
