@@ -1,7 +1,7 @@
 import base64
 from flask import Flask, request, send_from_directory, send_file
 from flask_socketio import SocketIO
-from recognition import b64_to_img, img_to_b64, draw_box
+from recognition import b64_to_img, img_to_b64, draw_box_and_panic
 
 app = Flask(__name__, static_folder='build')
 socketio = SocketIO(app)
@@ -33,7 +33,8 @@ def on_data(data):
     socket_id = request.sid
     # start ML code
     img = b64_to_img(data.split(',', maxsplit=1)[1])
-    markedImage = str(b'data:image/jpeg;base64,' + img_to_b64(draw_box(img)))[2: -1]
+    img_with_box, panic_or_not = draw_box_and_panic(img)  # TODO: do something with `panic_or_not`
+    markedImage = str(b'data:image/jpeg;base64,' + img_to_b64(img_with_box)[2: -1]
     # end ML code
     socketio.emit('prediction', data=str(markedImage), room=socket_id)
 
