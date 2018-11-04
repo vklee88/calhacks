@@ -1,3 +1,4 @@
+import base64
 from flask import Flask, request, send_from_directory, send_file
 from flask_socketio import SocketIO
 
@@ -40,4 +41,4 @@ def on_leave():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
