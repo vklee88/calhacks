@@ -30,12 +30,9 @@ def on_create():
 def on_data(data):
     # image is in base64 and starts with "data:image/jpeg;base64,<image_data>"
     socket_id = request.sid
-    print('Socket ID:', socket_id)
-    f = list(data)
-    print(len(f))
-    print('Data:', data)
     # run ML code
-    return 'ack'
+    markedImage = # MLCODE call
+    socketio.emit('prediction', data=markedImage, room=socket_id)
 
 
 @socketio.on('disconnect')

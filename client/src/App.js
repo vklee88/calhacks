@@ -6,18 +6,28 @@ class App extends Component {
   BROWSER_ERR = "You seem to using a browser that does not support video. " +
                 "Please don't use IE or upgrade your browser.";
   PERMISSION_ERR = "You need to allow access to a camera to run this app.";
-  RATE = 1000;
+  RATE = 33;
   URL = 'http://localhost:5000';
 
   constructor(props) {
     super(props);
     this.videoRef = React.createRef();
+
+    const canvas = document.createElement('canvas'); // create a canvas
+    const ctx = canvas.getContext('2d'); // get its context
+    canvas.width = 300; // set its size to the one of the video
+    canvas.height = 300;
+
     this.state = {
       err: null,
       // mediaRecorder: null,
       socket: null,
       storedStream: null,
-      snapshotter: null
+      snapshotter: null,
+      imageData: null,
+      fileReader: new FileReader(),
+      canvas: canvas,
+      ctx: ctx
     };
 
     this.uploadData = this.uploadData.bind(this);
@@ -50,16 +60,11 @@ class App extends Component {
               finished = false;
               this.takeASnap(video)
                 .then((blob) => {
-                  return this.uploadData(blob);
-                }).then(ack => {
-                  console.log(ack);
-                  finished = true;
-                }).catch(err => {
-                  console.log('Failed response from server');
+                  this.uploadData(blob);
+                }).then(() => {
                   finished = true;
                 });
             }, this.RATE);
-
             this.setState({err: null, storedStream: stream, snapshotter: snapshotter});
           })
           .catch(err => {
@@ -74,6 +79,9 @@ class App extends Component {
         alert('Timeout when connecting to server');
         this.state.socket.close();
         this.setState({socket: null});
+      });
+      socket.on('prediction', imgData => {
+        this.setState({imageData: imgData});
       });
     } else {
         this.setState({err: this.BROWSER_ERR});
@@ -103,17 +111,14 @@ class App extends Component {
 
   // https://stackoverflow.com/questions/46882550/how-to-save-a-jpg-image-video-captured-with-webcam-in-the-local-hard-drive-with
   takeASnap(vid){
-    const canvas = document.createElement('canvas'); // create a canvas
-    const ctx = canvas.getContext('2d'); // get its context
-    canvas.width = vid.width; // set its size to the one of the video
-    canvas.height = vid.height;
-    ctx.drawImage(vid, 0,0, canvas.width, canvas.height); // the video
-    return new Promise((res, rej)=>{
+    const canvas = this.state.canvas;
+    this.state.ctx.drawImage(vid, 0,0, canvas.width, canvas.height); // the video
+    return new Promise((res)=>{
       canvas.toBlob((blob) => {
-        var reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = function() {
-          let base64data = reader.result;
+        let fileReader = this.state.fileReader;
+        fileReader.readAsDataURL(blob);
+        fileReader.onloadend = function() {
+          let base64data = fileReader.result;
           res(base64data);
         }
       }, 'image/jpeg'); // request a Blob from the canvas
@@ -124,13 +129,9 @@ class App extends Component {
     // console.log(blobEvent);
     // console.log(this.state.socket);
     if (this.state.socket) {
-      return new Promise((res, rej) => {
+      return new Promise((res) => {
         this.state.socket.emit('data', blob, (ack) => {
-          if (ack) {
-            res(ack);
-          } else {
-            rej('Not acknowledged')
-          }
+          res(ack);
         });
       });
     }
@@ -145,6 +146,7 @@ class App extends Component {
         </div>
         {this.state.err && <p>{this.state.err} Refresh the browser and try again.</p>}
         <video height='300' width='300' ref={this.videoRef} autoPlay></video>
+        <img height='300' width='300' src={this.state.imageData} alt='no data yet'/>
       </div>
     );
   }
