@@ -1,4 +1,3 @@
-import base64
 from flask import Flask, request, send_from_directory, send_file
 from flask_socketio import SocketIO
 from recognition import b64_to_img, img_to_b64, draw_box

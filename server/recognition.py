@@ -77,7 +77,7 @@ def draw_one_box(img, box, color, label):
     box = 300 * box
     xmin, ymin, xmax, ymax = list(box)
     cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
-    print(label)
+    # print(label)
     # cv2.putText(img, label, (xmax, ymax), cv2.FONT_HERSHEY_SIMPLEX, 4, color, 2, cv2.LINE_AA)
 
 def categories(idx):  # 80 classes

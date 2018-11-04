@@ -24,6 +24,7 @@ class App extends Component {
       socket: null,
       storedStream: null,
       snapshotter: null,
+      run: false,
       imageData: null,
       fileReader: new FileReader(),
       canvas: canvas,
@@ -41,7 +42,6 @@ class App extends Component {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       let socket = io(this.URL);
       this.setState({socket: socket});
-      let finished = true; // hack to make sure that we're not overloading system; assumption is that RATE is not too small
       socket.on('connect', () => {
         navigator.mediaDevices.getUserMedia({video: true})
           .then(stream => {
@@ -53,19 +53,8 @@ class App extends Component {
             // mediaRecorder.start(this.RATE);
             // mediaRecorder.ondataavailable = this.uploadData;
             // this.setState({err: null, storedStream: stream, mediaRecorder: mediaRecorder});
-            let snapshotter = setInterval(() => {
-              if (!finished) {
-                return;
-              }
-              finished = false;
-              this.takeASnap(video)
-                .then((blob) => {
-                  return this.uploadData(blob);
-                }).then(() => {
-                  finished = true;
-                });
-            }, this.RATE);
-            this.setState({err: null, storedStream: stream, snapshotter: snapshotter});
+            this.setState({err: null, storedStream: stream, run: true});
+            this.takeSnapshot(null, video);
           })
           .catch(err => {
             let message = err.message;
@@ -100,13 +89,29 @@ class App extends Component {
       this.setState({storedStream: null});
     }
     if (this.state.snapshotter) {
-      clearInterval(this.state.snapshotter);
-      this.setState({snapshotter: null});
+      clearTimeout(this.state.snapshotter);
+      this.setState({snapshotter: null, run: false});
     }
     // if (this.state.mediaRecorder) {
     //   this.state.mediaRecorder.stop();
     //   this.setState({mediaRecorder: null});
     // }
+  }
+
+  takeSnapshot(c, video) {
+    if (!this.state.run) {
+      return;
+    }
+    let snapshotter = setTimeout((c) => {
+      c = c || 0;
+      this.setState({snapshotter: snapshotter});
+      this.takeASnap(video)
+        .then((blob) => {
+          return this.uploadData(blob);
+        }).then(() => {
+          this.takeSnapshot(c, video);
+        });
+    }, 50, c);
   }
 
   // https://stackoverflow.com/questions/46882550/how-to-save-a-jpg-image-video-captured-with-webcam-in-the-local-hard-drive-with
