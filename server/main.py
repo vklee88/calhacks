@@ -33,6 +33,7 @@ def on_data(data):
     # start ML code
     img = b64_to_img(data.split(',', maxsplit=1)[1])
     img_with_box, panic_or_not = draw_box_and_panic(img)  # TODO: do something with `panic_or_not`
+    if panic_or_not: print('PANIC')
     markedImage = str(b'data:image/jpeg;base64,' + img_to_b64(img_with_box))[2: -1]
     # end ML code
     socketio.emit('prediction', data=str(markedImage), room=socket_id)
