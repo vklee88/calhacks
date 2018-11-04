@@ -1,4 +1,3 @@
-import cv2
 import tensorflow as tf
 
 PANIC_THRESHOLD = 20_000

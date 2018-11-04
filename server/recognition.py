@@ -1,6 +1,5 @@
-import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 import tensorflow as tf
 
 import base64
@@ -36,13 +35,14 @@ detection_classes = global_graph.get_tensor_by_name('baby/detection_classes:0')
 detection_boxes = global_graph.get_tensor_by_name('baby/detection_boxes:0')
 detection_scores = global_graph.get_tensor_by_name('baby/detection_scores:0')
 num_detections = global_graph.get_tensor_by_name('baby/num_detections:0')
-print('input_img:', input_img)
+# print('input_img:', input_img)
 # print('y:', y)
 
+# nopencv
 def predict(img):
     # img = cv2.imread(img, 1)  # convert image to numpy array
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (300, 300))  # resize to 300 x 300
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # img = cv2.resize(img, (300, 300))  # resize to 300 x 300
     img = np.expand_dims(img, axis=0)
     output = {}
     output['classes'] = global_session.run(detection_classes, feed_dict={input_img: img})
@@ -52,39 +52,49 @@ def predict(img):
 
     return img, output
 
+# nopencv
 def draw_box_and_panic(img):
     img_array, prediction_dict = predict(img)
-    top_boxes = prediction_dict['boxes'][:, :3, :][0, :]
-    top_labels = [categories(int(code)) for idx, code in enumerate(list(prediction_dict['classes'][0])) if idx < 3]
     img_array = img_array.reshape(300, 300, 3)
+    img = Image.fromarray(img_array, mode='RGB')
+    top_boxes = prediction_dict['boxes'][:, :3, :][0, :]
+    # top_labels = [categories(int(code)) for idx, code in enumerate(list(prediction_dict['classes'][0])) if idx < 3]
 
     good_box = centermost_box(top_boxes)
-    draw_one_box(img_array, good_box, (255, 255, 0))
+    draw_one_box(img, good_box, (255, 255, 0))
     panic_or_not = panic(good_box)
 
     # for idx, (box, label) in enumerate(zip(list(top_boxes), top_labels)):
     #     color = [(255, 0, 0), (0, 255, 0), (0, 0, 255)][idx]
     #     draw_one_box(img_array, box, color, label)
     
-    return img_array, panic_or_not
+    return img, panic_or_not
 
+# nopencv
 def b64_to_img(b64_str):
-    temp = Image.open(BytesIO(base64.b64decode(b64_str)))
-    img = np.asarray(temp)
+    img = Image.open(BytesIO(base64.b64decode(b64_str)))
+    img = img.resize((300, 300))
+    img = np.asarray(img)
     return img
 
-# this is working
-def img_to_b64(img_arr):
-    compressed_img_arr = cv2.imencode('.jpg', img_arr)[1]
-    b64_str = base64.b64encode(compressed_img_arr)
-    return b64_str
+# nopencv
+def img_to_b64(img):
+    # compressed_img_arr = cv2.imencode('.jpg', img_arr)[1]
+    # b64_str = base64.b64encode(compressed_img_arr)
+    # return b64_str
+
+    buffer = BytesIO()  # img needs to be a PIL Image object
+    img.save(buffer, format='JPEG')
+    compressed_img = buffer.getvalue()
+    return base64.b64encode(compressed_img)
     
+# nopencv
 def draw_one_box(img, box, color):
     box = 300 * box
     ymin, xmin, ymax, xmax = list(box)
-    cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
-    # print(label)
-    # cv2.putText(img, label, (xmax, ymax), cv2.FONT_HERSHEY_SIMPLEX, 4, color, 2, cv2.LINE_AA)
+
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([xmin, ymin, xmax, ymax], outline=color, width=5)
 
 def categories(idx):  # 80 classes
     try:
