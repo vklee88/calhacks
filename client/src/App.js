@@ -41,6 +41,7 @@ class App extends Component {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       let socket = io(this.URL);
       this.setState({socket: socket});
+      let finished = true; // hack to make sure that we're not overloading system; assumption is that RATE is not too small
       socket.on('connect', () => {
         navigator.mediaDevices.getUserMedia({video: true})
           .then(stream => {
@@ -52,7 +53,6 @@ class App extends Component {
             // mediaRecorder.start(this.RATE);
             // mediaRecorder.ondataavailable = this.uploadData;
             // this.setState({err: null, storedStream: stream, mediaRecorder: mediaRecorder});
-            let finished = true; // hack to make sure that we're not overloading system; assumption is that RATE is not too small
             let snapshotter = setInterval(() => {
               if (!finished) {
                 return;
@@ -60,7 +60,7 @@ class App extends Component {
               finished = false;
               this.takeASnap(video)
                 .then((blob) => {
-                  this.uploadData(blob);
+                  return this.uploadData(blob);
                 }).then(() => {
                   finished = true;
                 });

@@ -1,6 +1,7 @@
 import base64
 from flask import Flask, request, send_from_directory, send_file
 from flask_socketio import SocketIO
+from recognition import b64_to_img, img_to_b64, draw_box
 
 app = Flask(__name__, static_folder='build')
 socketio = SocketIO(app)
@@ -30,9 +31,11 @@ def on_create():
 def on_data(data):
     # image is in base64 and starts with "data:image/jpeg;base64,<image_data>"
     socket_id = request.sid
-    # run ML code
-    markedImage = # MLCODE call
-    socketio.emit('prediction', data=markedImage, room=socket_id)
+    # start ML code
+    img = b64_to_img(data.split(',', maxsplit=1)[1])
+    markedImage = str(b'data:image/jpeg;base64,' + img_to_b64(draw_box(img)))[2: -1]
+    # end ML code
+    socketio.emit('prediction', data=str(markedImage), room=socket_id)
 
 
 @socketio.on('disconnect')

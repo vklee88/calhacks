@@ -38,8 +38,8 @@ print('input_img:', input_img)
 # print('y:', y)
 
 def predict(img):
-    img = cv2.imread(img, 1)  # convert image to numpy array
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # img = cv2.imread(img, 1)  # convert image to numpy array
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (300, 300))  # resize to 300 x 300
     img = np.expand_dims(img, axis=0)
     output = {}
