@@ -145,14 +145,17 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <div className='App'>
         <div>
-          <button onClick={() => this.startRecording()}>Start Video</button>
-          <button onClick={() => this.stopRecording()}>End Video</button>
+          <button className='button' onClick={() => this.startRecording()}>Start Video</button>
+          <button className='button' onClick={() => this.stopRecording()}>End Video</button>
         </div>
         {this.state.err && <p>{this.state.err} Refresh the browser and try again.</p>}
-        <video height='300' width='300' ref={this.videoRef} autoPlay></video>
-        <img height='300' width='300' src={this.state.imageData} alt='no data yet'/>
+        <br/>
+        <div className='centered'>
+          <video className='vid' height='300' width='300' ref={this.videoRef} autoPlay></video>
+          <img className='vid' height='300' width='300' src={this.state.imageData} alt='no data yet'/>
+        </div>
       </div>
     );
   }

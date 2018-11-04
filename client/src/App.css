@@ -1,0 +1,28 @@
+.App {
+    padding: 10px;
+}
+
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+}
+
+.centered {
+    display: inline-block;
+    margin: 10px;
+}
+
+.vid {
+    margin: 10px;
+}
+
+img {
+    text-align: center;
+}
