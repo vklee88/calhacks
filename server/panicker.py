@@ -9,7 +9,7 @@ def panic(centermost):
 def centermost_box(boxes):
     return min(list(boxes), key=lambda box: distance_from_center(box))
 
-def distance_from_center(box, w, h):
+def distance_from_center(box, w=300, h=300):
     """Finds the distance of the center of a bounding box
     from the center of the image.
     
