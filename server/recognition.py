@@ -1,3 +1,6 @@
+from subprocess import call
+call('sudo apt update && apt install -y libsm6 libxext6', shell=True)
+
 import cv2
 import numpy as np
 from PIL import Image
