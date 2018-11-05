@@ -7,7 +7,7 @@ class App extends Component {
                 "Please don't use IE or upgrade your browser.";
   PERMISSION_ERR = "You need to allow access to a camera to run this app.";
   RATE = 33;
-  URL = 'http://localhost:5000';
+  URL = 'http://testproject-009.appspot.com/';
 
   constructor(props) {
     super(props);
